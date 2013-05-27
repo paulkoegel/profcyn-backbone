@@ -1,9 +1,38 @@
-devTasks = ['clean:dev', 'copy:dev', 'haml:dev_html', 'haml:dev_haml_coffee', 'coffee:dev', 'markdown:dev', 'html_json_wrapper:dev', 'insert_json_to_dom:dev']
+#grunt.registerTask 'setGlobal', 'Set a global variable.', (name, val) ->
+#global['name'] = val
+
+devTasks = ['set_global', 'clean:dev', 'copy:dev', 'haml:dev_html', 'haml:dev_haml_coffee', 'coffee:dev', 'markdown:dev', 'html_json_wrapper:dev', 'insert_json_to_dom:dev']
 prodTasks = ['clean:prod', 'copy:prod', 'haml:prod_html', 'haml:prod_haml_coffee', 'coffee:prod', 'markdown:prod', 'html_json_wrapper:prod', 'compass:prod', 'concat:prod', 'closure-compiler:prod', 'insert_json_to_dom:prod', 'cssmin:prod', 'cachebust', 'clean:prod_js']
 
-filesToWatch = [
-  'source/**/*'
-]
+# can't use 'source/javascripts/**' for this as the loading sequence is important
+filesToLoad = (path) ->
+  if path?
+    basePath = "#{path}/"
+  else
+    basePath = ''
+  files = [
+    'vendor/jquery.js'
+    'vendor/underscore.js'
+    'vendor/backbone.js'
+    'vendor/backbone.marionette.js'
+    'vendor/marionette_renderer.js'
+    'vendor/swipe.js'
+    'vendor/jquery.imagesloaded.js'
+    'app_init.js'
+    'routers/app_router.js'
+    'views/layouts/app.js'
+    'templates/layouts/app.js'
+    # "#{basePath}javascripts/templates/navigation.js"
+  ]
+  result = []
+  i = 0
+  while i < files.length
+    result.push("#{basePath}javascripts/#{files[i]}")
+    i++
+  result
+
+# console.log global
+# global.grunt.sourceFiles = filesToLoad('grunt_dev')
 
 module.exports = (grunt) ->
   grunt.initConfig
@@ -130,7 +159,8 @@ module.exports = (grunt) ->
           './source/images/**',
           './source/javascripts/**',
           './source/content/**',
-          './source/index_dev.haml'
+          './source/index_dev.haml',
+          './Gruntfile.coffee'
         ]
         tasks: devTasks
 
@@ -147,7 +177,8 @@ module.exports = (grunt) ->
             after: '</span>'
       prod:
         files: ['source/content/**/*.mdown']
-        dest: 'grunt_prod/content/' # is there any way to preserve folder structure?
+        # is there any way to preserve folder structure?
+        dest: 'grunt_prod/content/'
         template: 'source/markdown_template.html'
         options:
           gfm: false
@@ -197,34 +228,33 @@ module.exports = (grunt) ->
       options:
         separator: ';'
       prod:
-        src: [
-          'grunt_prod/javascripts/vendor/jquery.js'
-          'grunt_prod/javascripts/vendor/underscore.js'
-          'grunt_prod/javascripts/vendor/backbone.js'
-          'grunt_prod/javascripts/vendor/backbone.marionette.js'
-          'grunt_prod/javascripts/vendor/marionette_renderer.js'
-          'grunt_prod/javascripts/vendor/swipe.js'
-          'grunt_prod/javascripts/vendor/jquery.imagesloaded.js'
-          'grunt_prod/javascripts/vendor/jquery.event.special.js'
-          'grunt_prod/javascripts/vendor/jquery.scrollsnap.js'
-          'grunt_prod/javascripts/app_init.js'
-          'grunt_prod/javascripts/collections/projects.js'
-          'grunt_prod/javascripts/models/project.js'
-          'grunt_prod/javascripts/views/contact.js'
-          'grunt_prod/javascripts/views/about.js'
-          'grunt_prod/javascripts/views/navigation.js'
-          'grunt_prod/javascripts/views/layouts/app.js'
-          'grunt_prod/javascripts/views/projects/index.js'
-          'grunt_prod/javascripts/views/projects/show.js'
-          'grunt_prod/javascripts/views/projects/slide.js'
-          'grunt_prod/javascripts/templates/contact.js'
-          'grunt_prod/javascripts/templates/about.js'
-          'grunt_prod/javascripts/templates/navigation.js'
-          'grunt_prod/javascripts/templates/layouts/app.js'
-          'grunt_prod/javascripts/templates/projects/index.js'
-          'grunt_prod/javascripts/templates/projects/show.js'
-          'grunt_prod/javascripts/templates/projects/slide.js'
-        ]
+        src: filesToLoad('grunt_prod')
+          # [
+          #   'grunt_prod/javascripts/vendor/jquery.js'
+          #   'grunt_prod/javascripts/vendor/underscore.js'
+          #   'grunt_prod/javascripts/vendor/backbone.js'
+          #   'grunt_prod/javascripts/vendor/backbone.marionette.js'
+          #   'grunt_prod/javascripts/vendor/marionette_renderer.js'
+          #   'grunt_prod/javascripts/vendor/swipe.js'
+          #   'grunt_prod/javascripts/vendor/jquery.imagesloaded.js'
+          #   'grunt_prod/javascripts/app_init.js'
+          #   'grunt_prod/javascripts/collections/projects.js'
+          #   'grunt_prod/javascripts/models/project.js'
+          #   'grunt_prod/javascripts/views/contact.js'
+          #   'grunt_prod/javascripts/views/about.js'
+          #   'grunt_prod/javascripts/views/navigation.js'
+          #   'grunt_prod/javascripts/views/layouts/app.js'
+          #   'grunt_prod/javascripts/views/projects/index.js'
+          #   'grunt_prod/javascripts/views/projects/show.js'
+          #   'grunt_prod/javascripts/views/projects/slide.js'
+          #   'grunt_prod/javascripts/templates/contact.js'
+          #   'grunt_prod/javascripts/templates/about.js'
+          #   'grunt_prod/javascripts/templates/navigation.js'
+          #   'grunt_prod/javascripts/templates/layouts/app.js'
+          #   'grunt_prod/javascripts/templates/projects/index.js'
+          #   'grunt_prod/javascripts/templates/projects/show.js'
+          #   'grunt_prod/javascripts/templates/projects/slide.js'
+          # ]
         dest: 'grunt_prod/javascripts/application.js'
 
     uglify:
@@ -293,5 +323,6 @@ module.exports = (grunt) ->
   # workaround with which we could call, e.g., grunt.file functions inside of HAML templates with `= global.grunt.file(...)`
   # not using this for now as the cachebusting task is more elegant and we have no further use for this; please keep for reference, though.
   # cf. http://gruntjs.com/frequently-asked-questions#globals-and-configs
-  # grunt.registerTask 'set_global', 'Set a global variable.', (name, val) ->
-  #   global['grunt'] = grunt
+  grunt.registerTask 'set_global', 'Set a global variable.', (name, val) ->
+    global['grunt'] = grunt
+    global.sourceFiles = filesToLoad()
