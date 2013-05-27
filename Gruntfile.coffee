@@ -1,6 +1,9 @@
 #grunt.registerTask 'setGlobal', 'Set a global variable.', (name, val) ->
 #global['name'] = val
 
+# grunt-connect-rewrite
+rewriteRulesSnippet = require('grunt-connect-rewrite/lib/utils').rewriteRequest
+
 devTasks = ['set_global', 'clean:dev', 'copy:dev', 'haml:dev_html', 'haml:dev_haml_coffee', 'coffee:dev', 'markdown:dev', 'html_json_wrapper:dev', 'insert_json_to_dom:dev']
 prodTasks = ['clean:prod', 'copy:prod', 'haml:prod_html', 'haml:prod_haml_coffee', 'coffee:prod', 'markdown:prod', 'html_json_wrapper:prod', 'compass:prod', 'concat:prod', 'closure-compiler:prod', 'insert_json_to_dom:prod', 'cssmin:prod', 'cachebust', 'clean:prod_js']
 
@@ -39,10 +42,14 @@ module.exports = (grunt) ->
     connect:
       server:
         options:
+          middleware: (connect) ->
+            [rewriteRulesSnippet]
           base: './grunt_dev'
           hostname: null # required to call the server via IP, e.g. from a local mobile device (documentation says to use '*', but this says to stick with null for now:  https://github.com/gruntjs/grunt-contrib-connect/issues/21)
           port: 3000
           keepalive: true # without this the server process would close immediately after a successful start; you can then not chain any task behind connect, however
+        rules:
+          '^/login$': '/'
 
     clean:
       dev:
@@ -192,20 +199,20 @@ module.exports = (grunt) ->
         options: {}
         files:
           'grunt_dev/content/projects.json': [
-            'grunt_dev/content/berlin_school.html',
-            'grunt_dev/content/big_lebowski.html',
-            'grunt_dev/content/dingfabrik.html',
-            'grunt_dev/content/o_brother.html',
+            'grunt_dev/content/berlin_school.html'
+            'grunt_dev/content/big_lebowski.html'
+            'grunt_dev/content/dingfabrik.html'
+            'grunt_dev/content/o_brother.html'
             'grunt_dev/content/photo_gallery.html'
           ]
       prod:
         options: {}
         files:
           'grunt_prod/content/projects.json': [
-            'grunt_prod/content/berlin_school.html',
-            'grunt_prod/content/big_lebowski.html',
-            'grunt_prod/content/dingfabrik.html',
-            'grunt_prod/content/o_brother.html',
+            'grunt_prod/content/berlin_school.html'
+            'grunt_prod/content/big_lebowski.html'
+            'grunt_prod/content/dingfabrik.html'
+            'grunt_prod/content/o_brother.html'
             'grunt_dev/content/photo_gallery.html'
           ]
 
@@ -229,32 +236,6 @@ module.exports = (grunt) ->
         separator: ';'
       prod:
         src: filesToLoad('grunt_prod')
-          # [
-          #   'grunt_prod/javascripts/vendor/jquery.js'
-          #   'grunt_prod/javascripts/vendor/underscore.js'
-          #   'grunt_prod/javascripts/vendor/backbone.js'
-          #   'grunt_prod/javascripts/vendor/backbone.marionette.js'
-          #   'grunt_prod/javascripts/vendor/marionette_renderer.js'
-          #   'grunt_prod/javascripts/vendor/swipe.js'
-          #   'grunt_prod/javascripts/vendor/jquery.imagesloaded.js'
-          #   'grunt_prod/javascripts/app_init.js'
-          #   'grunt_prod/javascripts/collections/projects.js'
-          #   'grunt_prod/javascripts/models/project.js'
-          #   'grunt_prod/javascripts/views/contact.js'
-          #   'grunt_prod/javascripts/views/about.js'
-          #   'grunt_prod/javascripts/views/navigation.js'
-          #   'grunt_prod/javascripts/views/layouts/app.js'
-          #   'grunt_prod/javascripts/views/projects/index.js'
-          #   'grunt_prod/javascripts/views/projects/show.js'
-          #   'grunt_prod/javascripts/views/projects/slide.js'
-          #   'grunt_prod/javascripts/templates/contact.js'
-          #   'grunt_prod/javascripts/templates/about.js'
-          #   'grunt_prod/javascripts/templates/navigation.js'
-          #   'grunt_prod/javascripts/templates/layouts/app.js'
-          #   'grunt_prod/javascripts/templates/projects/index.js'
-          #   'grunt_prod/javascripts/templates/projects/show.js'
-          #   'grunt_prod/javascripts/templates/projects/slide.js'
-          # ]
         dest: 'grunt_prod/javascripts/application.js'
 
     uglify:
@@ -313,12 +294,13 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-closure-compiler'
   grunt.loadNpmTasks 'grunt-contrib-cssmin'
+  grunt.loadNpmTasks 'grunt-connect-rewrite'
   grunt.loadTasks './tasks/'
 
   grunt.registerTask 'build:dev', devTasks
   grunt.registerTask 'build:prod', prodTasks
   grunt.registerTask 'default', ['watch:dev']
-  grunt.registerTask 'server', ['connect']
+  #grunt.registerTask 'server', ['connect']
 
   # workaround with which we could call, e.g., grunt.file functions inside of HAML templates with `= global.grunt.file(...)`
   # not using this for now as the cachebusting task is more elegant and we have no further use for this; please keep for reference, though.
@@ -326,3 +308,9 @@ module.exports = (grunt) ->
   grunt.registerTask 'set_global', 'Set a global variable.', (name, val) ->
     global['grunt'] = grunt
     global.sourceFiles = filesToLoad()
+
+  grunt.registerTask 'server', (target) ->
+    grunt.task.run [
+      'configureRewriteRules'
+      'connect:server'
+    ]
