@@ -11,14 +11,17 @@ BB.app.on 'initialize:after', ->
   BB.appLayout = new BB.AppLayout()
   BB.app.mainWrapper.show(BB.appLayout)
   if Backbone.history
-    Backbone.history.start
-      pushState: true
+    Backbone.history.start()
+      #pushState: true # have to use URL fragments until grunt-connect-rewrite works properly
 
 
 $ ->
 
   console.log 'document ready'
 
+  # $.ajaxPrefilter (options, originalOptions, jqXHR) ->
+  #   options.url = 'http://localhost:4000' + options.url
+  
   # required for proper server-side processing of request
   $.ajaxSetup
     beforeSend: (xhrObj) ->
@@ -26,7 +29,7 @@ $ ->
       xhrObj.setRequestHeader("Accept","application/json")
 
   class GalleryCollection extends Backbone.Collection
-    url: 'http://localhost:4000/galleries'
+    url: 'galleries'
   
   galleries = new GalleryCollection()
   galleries.fetch

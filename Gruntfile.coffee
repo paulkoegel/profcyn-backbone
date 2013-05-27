@@ -21,7 +21,11 @@ filesToLoad = (path) ->
     'app_init.js'
     'routers/app_router.js'
     'views/layouts/app.js'
+    'views/login_view.js'
+    'views/navigation_view.js'
     'templates/layouts/app.js'
+    'templates/login.js'
+    'templates/navigation.js'
     # "#{basePath}javascripts/templates/navigation.js"
   ]
   result = []
@@ -108,6 +112,7 @@ module.exports = (grunt) ->
         files:
           'grunt_dev/javascripts/templates/about.js': 'source/javascripts/templates/about.hamlc'
           'grunt_dev/javascripts/templates/contact.js': 'source/javascripts/templates/contact.hamlc'
+          'grunt_dev/javascripts/templates/login.js': 'source/javascripts/templates/login.hamlc'
           'grunt_dev/javascripts/templates/navigation.js': 'source/javascripts/templates/navigation.hamlc'
           'grunt_dev/javascripts/templates/layouts/app.js': 'source/javascripts/templates/layouts/app.hamlc'
           'grunt_dev/javascripts/templates/projects/index.js': 'source/javascripts/templates/projects/index.hamlc'

@@ -12,8 +12,10 @@ class BB.AppRouter extends Backbone.Marionette.AppRouter
 
   root: ->
     console.log 'appRouter#root'
+    BB.appLayout.navigation.show(new BB.NavigationView())
+    BB.appLayout.content.close()
 
   login: ->
     console.log 'appRouter#login'
-    loginView = new BB.LoginView()
-    BB.appLayout.content.show(loginView)
+    BB.appLayout.navigation.show(new BB.NavigationView())
+    BB.appLayout.content.show(new BB.LoginView())
