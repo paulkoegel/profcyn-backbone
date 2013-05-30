@@ -42,14 +42,17 @@ module.exports = (grunt) ->
     connect:
       server:
         options:
-          middleware: (connect) ->
-            [rewriteRulesSnippet]
+          middleware: (connect, options) ->
+            [
+              rewriteRulesSnippet, # RewriteRules support
+              connect.static(require('path').resolve(options.base)) # mount filesystem
+            ]
           base: './grunt_dev'
           hostname: null # required to call the server via IP, e.g. from a local mobile device (documentation says to use '*', but this says to stick with null for now:  https://github.com/gruntjs/grunt-contrib-connect/issues/21)
           port: 3000
           keepalive: true # without this the server process would close immediately after a successful start; you can then not chain any task behind connect, however
-        rules:
-          '^/login$': '/'
+      rules:
+        '^/login$': '/'
 
     clean:
       dev:
