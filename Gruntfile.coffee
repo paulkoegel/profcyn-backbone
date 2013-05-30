@@ -209,21 +209,13 @@ module.exports = (grunt) ->
         options: {}
         files:
           'grunt_dev/content/projects.json': [
-            'grunt_dev/content/berlin_school.html'
-            'grunt_dev/content/big_lebowski.html'
-            'grunt_dev/content/dingfabrik.html'
-            'grunt_dev/content/o_brother.html'
-            'grunt_dev/content/photo_gallery.html'
+            'grunt_dev/content/project_a.html'
           ]
       prod:
         options: {}
         files:
           'grunt_prod/content/projects.json': [
-            'grunt_prod/content/berlin_school.html'
-            'grunt_prod/content/big_lebowski.html'
-            'grunt_prod/content/dingfabrik.html'
-            'grunt_prod/content/o_brother.html'
-            'grunt_dev/content/photo_gallery.html'
+            'grunt_dev/content/project_a.html'
           ]
 
     compass:
