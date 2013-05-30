@@ -25,6 +25,7 @@ filesToLoad = (path) ->
     'collections/galleries.js'
     'models/gallery.js'
     'routers/app_router.js'
+    'controllers/sessions_controller.js'
     'views/layouts/app.js'
     'views/login_view.js'
     'views/navigation_view.js'

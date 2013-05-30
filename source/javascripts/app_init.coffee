@@ -6,14 +6,14 @@ BB.app.addRegions
 
 BB.app.addInitializer (options) ->
   BB.appRouter = new BB.AppRouter()
-  # BB.sessionsController = new BB.SessionsController()
+  BB.sessionsController = new BB.SessionsController()
 
 BB.app.on 'initialize:after', ->
   BB.appLayout = new BB.AppLayout()
   BB.app.mainWrapper.show(BB.appLayout)
   if Backbone.history
-    Backbone.history.start()
-      #pushState: true # have to use URL fragments until grunt-connect-rewrite works properly
+    Backbone.history.start
+      pushState: true
 
 $ ->
 
