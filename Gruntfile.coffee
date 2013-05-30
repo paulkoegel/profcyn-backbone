@@ -19,6 +19,8 @@ filesToLoad = (path) ->
     'vendor/swipe.js'
     'vendor/jquery.imagesloaded.js'
     'app_init.js'
+    'collections/galleries.js'
+    'models/gallery.js'
     'routers/app_router.js'
     'views/layouts/app.js'
     'views/login_view.js'
