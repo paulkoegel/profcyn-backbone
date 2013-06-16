@@ -7,6 +7,7 @@ BB.app.addRegions
 BB.app.addInitializer (options) ->
   BB.appRouter = new BB.AppRouter()
   BB.sessionsController = new BB.SessionsController()
+  BB.galleriesController = new BB.GalleriesController()
 
 BB.app.on 'initialize:after', ->
   BB.appLayout = new BB.AppLayout()

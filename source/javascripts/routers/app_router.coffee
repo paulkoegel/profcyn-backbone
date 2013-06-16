@@ -12,10 +12,14 @@ class BB.AppRouter extends Backbone.Marionette.AppRouter
 
   root: ->
     console.log 'appRouter#root'
-    BB.appLayout.navigation.show(new BB.NavigationView())
-    BB.appLayout.content.close()
+    @defaultSetup()
+    BB.galleriesController.index()
 
   login: ->
     console.log 'appRouter#login'
+    @defaultSetup()
+    BB.sessionsController.new()
+
+  # stuff we need to initialize every time the page gets loaded via URL-request
+  defaultSetup: ->
     BB.appLayout.navigation.show(new BB.NavigationView())
-    BB.appLayout.content.show(new BB.LoginView())

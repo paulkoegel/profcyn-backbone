@@ -2,7 +2,5 @@
 
 class BB.GalleryModel extends Backbone.Model
 
-  url: '/galleries'
-
-  initialize: ->
-    url = BB.apiRoot + '/galleries'
+  initialize: (attrs) ->
+    @url = BB.apiRoot + '/galleries/' + @get('id')

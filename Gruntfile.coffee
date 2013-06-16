@@ -4,8 +4,8 @@
 # grunt-connect-rewrite
 rewriteRulesSnippet = require('grunt-connect-rewrite/lib/utils').rewriteRequest
 
-devTasks = ['set_global', 'clean:dev', 'copy:dev', 'haml:dev_html', 'haml:dev_haml_coffee', 'coffee:dev', 'markdown:dev', 'html_json_wrapper:dev', 'insert_json_to_dom:dev']
-prodTasks = ['clean:prod', 'copy:prod', 'haml:prod_html', 'haml:prod_haml_coffee', 'coffee:prod', 'markdown:prod', 'html_json_wrapper:prod', 'compass:prod', 'concat:prod', 'closure-compiler:prod', 'insert_json_to_dom:prod', 'cssmin:prod', 'cachebust', 'clean:prod_js']
+devTasks = ['set_global', 'clean:dev', 'copy:dev', 'haml:html', 'haml:haml_coffee', 'coffee:dev', 'markdown:dev', 'html_json_wrapper:dev', 'insert_json_to_dom:dev']
+prodTasks = ['clean:prod', 'copy:prod', 'haml:html', 'haml:haml_coffee', 'coffee:prod', 'markdown:prod', 'html_json_wrapper:prod', 'compass:prod', 'concat:prod', 'closure-compiler:prod', 'insert_json_to_dom:prod', 'cssmin:prod', 'cachebust', 'clean:prod_js']
 
 # can't use 'source/javascripts/**' for this as the loading sequence is important
 filesToLoad = (path) ->
@@ -25,14 +25,16 @@ filesToLoad = (path) ->
     'collections/galleries.js'
     'models/gallery.js'
     'routers/app_router.js'
+    'controllers/galleries_controller.js'
     'controllers/sessions_controller.js'
     'views/layouts/app.js'
     'views/login_view.js'
+    'views/galleries/show.js'
     'views/navigation_view.js'
+    'templates/galleries/galleries_show.js'
     'templates/layouts/app.js'
     'templates/login.js'
     'templates/navigation.js'
-    # "#{basePath}javascripts/templates/navigation.js"
   ]
   result = []
   i = 0
@@ -115,42 +117,17 @@ module.exports = (grunt) ->
         ]
 
     haml:
-      dev_html:
+      html:
         files:
           'grunt_dev/index.html': 'source/index_dev.haml'
+          'grunt_<%= environment %>/index.html': 'source/index_<%= environment %>.haml'
         options:
           target: 'html'
           language: 'coffee'
-      dev_haml_coffee:
-        files:
-          'grunt_dev/javascripts/templates/about.js': 'source/javascripts/templates/about.hamlc'
-          'grunt_dev/javascripts/templates/contact.js': 'source/javascripts/templates/contact.hamlc'
-          'grunt_dev/javascripts/templates/login.js': 'source/javascripts/templates/login.hamlc'
-          'grunt_dev/javascripts/templates/navigation.js': 'source/javascripts/templates/navigation.hamlc'
-          'grunt_dev/javascripts/templates/layouts/app.js': 'source/javascripts/templates/layouts/app.hamlc'
-          'grunt_dev/javascripts/templates/projects/index.js': 'source/javascripts/templates/projects/index.hamlc'
-          'grunt_dev/javascripts/templates/projects/show.js': 'source/javascripts/templates/projects/show.hamlc'
-          'grunt_dev/javascripts/templates/projects/slide.js': 'source/javascripts/templates/projects/slide.hamlc'
-        options:
-          target: 'js'
-          language: 'coffee'
-          placement: 'global'
-          namespace: 'window.JST'
-      prod_html:
-        files:
-          'grunt_prod/index.html': 'source/index_prod.haml'
-        options:
-          target: 'html'
-          language: 'coffee'
-      prod_haml_coffee:
-        files:
-          'grunt_prod/javascripts/templates/about.js': 'source/javascripts/templates/about.hamlc'
-          'grunt_prod/javascripts/templates/contact.js': 'source/javascripts/templates/contact.hamlc'
-          'grunt_prod/javascripts/templates/navigation.js': 'source/javascripts/templates/navigation.hamlc'
-          'grunt_prod/javascripts/templates/layouts/app.js': 'source/javascripts/templates/layouts/app.hamlc'
-          'grunt_prod/javascripts/templates/projects/index.js': 'source/javascripts/templates/projects/index.hamlc'
-          'grunt_prod/javascripts/templates/projects/show.js': 'source/javascripts/templates/projects/show.hamlc'
-          'grunt_prod/javascripts/templates/projects/slide.js': 'source/javascripts/templates/projects/slide.hamlc'
+      haml_coffee:
+        files: [
+          { expand: true, cwd: 'source/', src: ['javascripts/templates/**/*.hamlc'], dest: 'grunt_<%= environment %>/', ext: '.js' }
+        ]
         options:
           target: 'js'
           language: 'coffee'
@@ -180,7 +157,7 @@ module.exports = (grunt) ->
           './source/index_dev.haml',
           './Gruntfile.coffee'
         ]
-        tasks: devTasks
+        tasks: 'dev_wrapper'
 
     markdown:
       dev:
@@ -300,10 +277,18 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-connect-rewrite'
   grunt.loadTasks './tasks/'
 
-  grunt.registerTask 'build:dev', devTasks
-  grunt.registerTask 'build:prod', prodTasks
+  # this seems a silly way to set variables, but it works.
+  grunt.registerTask 'dev_wrapper', 'Set config vars first and then call all devTasks.', ->
+    grunt.config.set 'environment', 'dev'
+    grunt.task.run devTasks
+
+  grunt.registerTask 'prod_wrapper', 'Set config vars first and then call all prodTasks.', ->
+    grunt.config.set 'environment', 'prod'
+    grunt.task.run prodTasks
+
+  grunt.registerTask 'build:dev', 'dev_wrapper'
+  grunt.registerTask 'build:prod', 'prod_wrapper'
   grunt.registerTask 'default', ['watch:dev']
-  #grunt.registerTask 'server', ['connect']
 
   # workaround with which we could call, e.g., grunt.file functions inside of HAML templates with `= global.grunt.file(...)`
   # not using this for now as the cachebusting task is more elegant and we have no further use for this; please keep for reference, though.
